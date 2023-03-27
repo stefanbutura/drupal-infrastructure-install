@@ -2,7 +2,6 @@
 - src: geerlingguy.certbot
 - src: geerlingguy.composer
 - src: geerlingguy.git
-- src: geerlingguy.mysql
 - src: geerlingguy.nginx
 - src: geerlingguy.php
 - src: geerlingguy.php-versions
