@@ -1,0 +1,93 @@
+---
+- name: Install dependencies
+  hosts: "nginx"
+  become: yes
+  pre_tasks:
+    - name: Configure MariaDB Repository
+      yum_repository:
+        name: mariadb
+        description: MariaDB
+        baseurl: http://yum.mariadb.org/10.6/centos7-amd64
+        gpgkey: https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+        gpgcheck: true
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Override variables for MySQL (RedHat).
+      set_fact:
+        mysql_daemon: mariadb
+        mysql_packages:
+          - mariadb
+          - mariadb-server
+          - MySQL-python
+        mysql_syslog_tag: mariadb
+        mysql_pid_file: /var/run/mariadb/mariadb.pid
+      when: ansible_os_family == "RedHat"
+  roles:
+    - geerlingguy.git
+    - name: geerlingguy.repo-remi
+      when: ansible_os_family == 'RedHat'
+    - geerlingguy.php-versions
+    - geerlingguy.php
+    - geerlingguy.composer
+    - geerlingguy.mysql
+    - geerlingguy.certbot
+    - stefanbutura.nginx
+  vars:
+    mysql_slow_query_log_enabled: false
+    mysql_slow_query_log_file: "/var/log/mariadb/slow-query.log"
+    mysql_myisam_sort_buffer_size: "16M"
+    mysql_table_open_cache: "16384"
+    mysql_thread_cache_size: "128"
+    mysql_max_connections: "256"
+    mysql_key_buffer_size: "64M"
+    mysql_sort_buffer_size: "3M"
+    mysql_read_buffer_size: "2M"
+    mysql_read_rnd_buffer_size: "32M"
+    mysql_join_buffer_size: "8M"
+    mysql_tmp_table_size: "256M"
+    mysql_max_heap_table_size: "256M"
+    mysql_query_cache_size: "32M"
+    mysql_query_cache_limit: "6M"
+    mysql_max_allowed_packet: "216M"
+    mysql_innodb_file_per_table: "1"
+    mysql_innodb_log_file_size: "128M"
+    mysql_innodb_log_buffer_size: "4M"
+    mysql_innodb_buffer_pool_size: "216M"
+    mysql_innodb_lock_wait_timeout: "3600"
+
+    php_fpm_pool_user: nginx
+    php_fpm_pool_group: nginx
+    php_memory_limit: "512M"
+    php_max_execution_time: "90"
+    php_upload_max_filesize: "256M"
+    php_enable_php_fpm: true
+    php_opcache_enable: false
+
+    certbot_admin_email: stefan.butura@eaudeweb.ro
+    certbot_create_if_missing: true
+    certbot_create_standalone_stop_services:
+      - nginx
+
+    php_packages:
+      - php
+      - php-cli
+      - php-common
+      - php-devel
+      - php-gd
+      - php-mbstring
+      - php-pdo
+      - php-pecl-apcu
+      - php-xml
+      - php-zip
+      - php-mysql
+      - php-mcrypt
+      - php-curl
+      - php-bz2
+      - php-bcmath
+      - php-fpm
+  vars_files:
+    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/mysql_vars.yml"
+    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/php_vars.yml"
+    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/nginx_vars.yml"
+    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/certbot_vars.yml"

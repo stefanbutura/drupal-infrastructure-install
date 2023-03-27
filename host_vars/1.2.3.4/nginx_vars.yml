@@ -1,0 +1,6 @@
+nginx_client_max_body_size: 256m
+nginx_php_version: "81"
+nginx_vhosts:
+  - server_name: "mydomain.com"
+    root: "/var/www/html/mydomain.com"
+    php_version: "{{ nginx_php_version }}"
