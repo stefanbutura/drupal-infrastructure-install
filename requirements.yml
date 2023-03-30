@@ -6,10 +6,7 @@
 - src: geerlingguy.php
 - src: geerlingguy.php-versions
 - src: geerlingguy.repo-remi
-
-- src: https://github.com/stefanbutura/ansible-role-mysql.git
-  version: master
-  name: geerlingguy.mysql
+- src: geerlingguy.mysql
 
 - src: https://github.com/stefanbutura/ansible-role-nginx.git
   version: master
