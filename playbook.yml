@@ -24,13 +24,14 @@
         mysql_pid_file: /var/run/mariadb/mariadb.pid
       when: ansible_os_family == "RedHat"
   roles:
-    - geerlingguy.git
-    - name: geerlingguy.repo-remi
-      when: ansible_os_family == 'RedHat'
-    - geerlingguy.php-versions
-    - geerlingguy.php
-    - geerlingguy.composer
-    - geerlingguy.mysql
+#    - geerlingguy.git
+#    - name: geerlingguy.repo-remi
+#      when: ansible_os_family == 'RedHat'
+#    - geerlingguy.php-versions
+#    - geerlingguy.php
+#    - geerlingguy.composer
+#    - geerlingguy.mysql
+    - { role: geerlingguy.nginx, ssl: false }
     - geerlingguy.certbot
     - stefanbutura.nginx
   vars:
@@ -65,31 +66,31 @@
     php_max_execution_time: "90"
     php_upload_max_filesize: "256M"
     php_enable_php_fpm: true
+    php_enable_webserver: false
 
     certbot_admin_email: stefan.butura@eaudeweb.ro
     certbot_create_if_missing: true
-    certbot_create_standalone_stop_services:
-      - nginx
+    certbot_create_method: webroot
+    certbot_webroot: /usr/share/nginx/html/letsencrypt
 
     php_packages:
-      - php
+      - php-bcmath
+      - php-bz2
       - php-cli
+      - php-curl
       - php-common
       - php-devel
+      - php-fpm
       - php-gd
+      - php-intl
       - php-mbstring
+      - php-mcrypt
+      - php-mysqlnd
+      - php-opcache
       - php-pdo
       - php-pecl-apcu
       - php-xml
       - php-zip
-      - php-mysql
-      - php-mcrypt
-      - php-curl
-      - php-bz2
-      - php-bcmath
-      - php-fpm
-      - php-intl
-      - php-mysqlnd
   vars_files:
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/mysql_vars.yml"
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/php_vars.yml"
