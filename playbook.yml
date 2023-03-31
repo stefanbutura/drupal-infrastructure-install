@@ -24,17 +24,17 @@
         mysql_pid_file: /var/lib/mysql/mariadb.pid
       when: ansible_os_family == "RedHat"
   roles:
-    - geerlingguy.github-users
     - geerlingguy.git
     - name: geerlingguy.repo-remi
       when: ansible_os_family == 'RedHat'
+    - { role: geerlingguy.nginx, ssl: false }
     - geerlingguy.php-versions
     - geerlingguy.php
     - geerlingguy.mysql
-    - { role: geerlingguy.nginx, ssl: false }
     - geerlingguy.certbot
     - eaudeweb.nginx_snippets
     - { role: geerlingguy.nginx, ssl: true }
+    - geerlingguy.github-users
   vars:
     nginx_vhost_template: "{{ playbook_dir }}/templates/nginx_vhost.j2"
 
@@ -111,3 +111,13 @@
   hosts: "nginx"
   roles:
     - geerlingguy.composer
+
+- name: Make users passwordless for sudo in group wheel
+  hosts: nginx
+  tasks:
+    - lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
