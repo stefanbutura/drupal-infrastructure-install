@@ -1,0 +1,3 @@
+github_users:
+   - name: mygithub_user
+     groups: www-data,sudo

@@ -24,6 +24,7 @@
         mysql_pid_file: /var/lib/mysql/mariadb.pid
       when: ansible_os_family == "RedHat"
   roles:
+    - geerlingguy.github-users
     - geerlingguy.git
     - name: geerlingguy.repo-remi
       when: ansible_os_family == 'RedHat'
@@ -104,6 +105,7 @@
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/php_vars.yml"
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/nginx_vars.yml"
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/certbot_vars.yml"
+    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/users_vars.yml"
 
 - name: Install composer
   hosts: "nginx"
