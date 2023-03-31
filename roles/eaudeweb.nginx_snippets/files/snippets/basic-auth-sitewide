@@ -1,0 +1,13 @@
+# DO NOT EDIT !!! - Ask EDW Drupal team for details how to edit this file
+# This file is generated. Manual changes to this file can be lost
+
+# HOW TO USE THIS SNIPPET
+# Declare the following configuration in your host 0-copy-files.yml
+#
+# nginx_vh_files_website:
+#   - { src: "passwords/basic-auth-sitewide.htpasswd", dest: "/etc/nginx/conf.d/drupal-nginx-config/passwords/basic-auth-sitewide.htpasswd", group: "nginx" }
+# nginx_vh_symlinks:
+#   - { src: "/etc/nginx/conf.d/drupal-nginx-config/snippets/basic-auth-sitewide", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets-local/drupal8--location-slash--basic-auth-sitewide.conf" }
+
+auth_basic "Protected area";
+auth_basic_user_file /etc/nginx/conf.d/drupal-nginx-config/passwords/basic-auth-sitewide.htpasswd;

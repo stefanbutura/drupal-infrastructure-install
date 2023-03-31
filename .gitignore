@@ -2,4 +2,5 @@
 hosts.yml
 host_vars/*
 !host_vars/1.2.3.4
-roles
+roles/*
+!roles/eaudeweb.nginx_snippets

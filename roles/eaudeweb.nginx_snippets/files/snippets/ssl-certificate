@@ -1,0 +1,13 @@
+# DO NOT EDIT !!! - Ask EDW Drupal team for details how to edit this file
+# This file is generated. Manual changes to this file can be lost
+
+  # Exception rule for certbot renewal
+  location ^~ /.well-known/acme-challenge/ {
+    default_type "text/plain";
+    root /usr/share/nginx/html/letsencrypt;
+    try_files $uri $uri/ =404;
+    break;
+  }
+  location = /.well-known/acme-challenge/ {
+    return 404;
+  }

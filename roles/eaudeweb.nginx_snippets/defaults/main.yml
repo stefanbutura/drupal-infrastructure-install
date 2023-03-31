@@ -1,0 +1,13 @@
+---
+nginx_vh_snippets:
+  - { src: "files/snippets/basic-auth-sitewide", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets/basic-auth-sitewide" }
+  - { src: "files/snippets/drupal8", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets/drupal8" }
+  - { src: "files/snippets/heavy-lifter-sync", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets/heavy-lifter-sync" }
+  - { src: "files/snippets/proxy-headers", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets/proxy-headers" }
+  - { src: "files/snippets/robots-noindex", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets/robots-noindex" }
+  - { src: "files/snippets/robots-nolog", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets/robots-nolog" }
+  - { src: "files/snippets/ssl-certificate", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets/ssl-certificate" }
+  - { src: "files/snippets/ssl-ciphers", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets/ssl-ciphers" }
+  - { src: "files/snippets/upstream-fpm-73.conf", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets/upstream-fpm-73.conf" }
+  - { src: "files/snippets/upstream-fpm-74.conf", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets/upstream-fpm-74.conf" }
+  - { src: "files/snippets/upstream-fpm-81.conf", dest: "/etc/nginx/conf.d/drupal-nginx-config/snippets/upstream-fpm-81.conf" }

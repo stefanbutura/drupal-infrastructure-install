@@ -1,0 +1,8 @@
+# DO NOT EDIT !!! - Ask EDW Drupal team for details how to edit this file
+# This file is generated. Manual changes to this file can be lost
+
+location = /robots.txt { 
+	allow all;
+	log_not_found off;
+	access_log off;
+}

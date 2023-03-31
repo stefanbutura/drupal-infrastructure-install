@@ -4,3 +4,4 @@ nginx_vhosts:
   - server_name: "mydomain.com"
     root: "/var/www/html/mydomain.com"
     php_version: "{{ nginx_php_version }}"
+    default_server: true

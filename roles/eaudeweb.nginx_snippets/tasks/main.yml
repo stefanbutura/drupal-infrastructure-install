@@ -1,0 +1,51 @@
+---
+- name: Create config directory structure
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    # Read-only, local modifications should not be allowed
+    mode: "0550"
+    group: "nginx"
+  with_items:
+    - "/etc/nginx/conf.d/drupal-nginx-config"
+    - "/etc/nginx/conf.d/drupal-nginx-config/passwords"
+    - "/etc/nginx/conf.d/drupal-nginx-config/snippets"
+    - "/etc/nginx/conf.d/drupal-nginx-config/snippets-local"
+    - "/etc/nginx/conf.d/drupal-nginx-config/ssl"
+
+- name: Copy global snippets
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    # Read-only, local modifications should not be allowed
+    mode: "0440"
+  with_items: "{{ nginx_vh_snippets }}"
+  notify: Restart nginx
+
+- name: Create symlinks
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+  with_items:
+    - { src: "/etc/nginx/conf.d/drupal-nginx-config/snippets/upstream-fpm-74.conf", dest: "/etc/nginx/conf.d/upstream-fpm-74.conf" }
+    - { src: "/etc/nginx/conf.d/drupal-nginx-config/snippets/upstream-fpm-81.conf", dest: "/etc/nginx/conf.d/upstream-fpm-81.conf" }
+  notify: Restart nginx
+
+- name: Generate 2048-bit SSL DH parameters (might take few minutes)
+  community.crypto.openssl_dhparam:
+    path: /etc/nginx/conf.d/drupal-nginx-config/ssl/dhparams.pem
+    size: 2048
+    group: nginx
+
+- name: Ensure nginx service is running as configured.
+  become: true
+  service:
+    name: nginx
+    state: "started"
+    enabled: true
+
+- name: Validate NGINX config before restart
+  become: true
+  ansible.builtin.command: nginx -t
+  changed_when: false

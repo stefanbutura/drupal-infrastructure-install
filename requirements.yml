@@ -7,7 +7,3 @@
 - src: geerlingguy.php-versions
 - src: geerlingguy.repo-remi
 - src: geerlingguy.mysql
-
-- src: https://github.com/stefanbutura/ansible-role-nginx.git
-  version: master
-  name: stefanbutura.nginx

@@ -1,2 +1,41 @@
 php_version: '8.1'
+php_executable: /usr/bin/php81
 php_fpm_listen: "/var/run/php81-php-fpm.sock"
+php_conf_paths: /etc/opt/remi/php81
+php_extension_conf_paths: /etc/opt/remi/php81/php.d
+php_fpm_conf_path: /etc/opt/remi/php81/php-fpm.conf
+php_fpm_pool_conf_path: /etc/opt/remi/php81/php-fpm.d/www.conf
+php_fpm_daemon: php81-php-fpm
+php_packages:
+  - php81-php-cli
+  - php81-php-curl
+  - php81-php-common
+  - php81-php-devel
+  - php81-php-fpm
+  - php81-php-gd
+  - php81-php-intl
+  - php81-php-mbstring
+  - php81-php-mcrypt
+  - php81-php-mysqlnd
+  - php81-php-opcache
+  - php81-php-pdo
+  - php81-php-pear
+  - php81-php-pecl-apcu
+  - php81-php-pecl-igbinary
+  - php81-php-pecl-mcrypt
+  - php81-php-pecl-memcached
+  - php81-php-pecl-uuid
+  - php81-php-pecl-yaml
+  - php81-php-pecl-zip
+  - php81-php-xml
+  - php81-php-zip
+php_fpm_pools:
+  - pool_name: www
+    pool_template: www.conf.j2
+    pool_listen: "/var/run/php81-php-fpm.sock"
+    pool_pm: dynamic
+    pool_pm_max_children: 5
+    pool_pm_start_servers: 2
+    pool_pm_min_spare_servers: 1
+    pool_pm_max_spare_servers: 5
+    pool_pm_max_requests: 500

@@ -21,19 +21,20 @@
           - mariadb-server
           - MySQL-python
         mysql_syslog_tag: mariadb
-        mysql_pid_file: /var/run/mariadb/mariadb.pid
+        mysql_pid_file: /var/lib/mysql/mariadb.pid
       when: ansible_os_family == "RedHat"
   roles:
-#    - geerlingguy.git
-#    - name: geerlingguy.repo-remi
-#      when: ansible_os_family == 'RedHat'
-#    - geerlingguy.php-versions
-#    - geerlingguy.php
-#    - geerlingguy.composer
-#    - geerlingguy.mysql
+    - geerlingguy.git
+    - name: geerlingguy.repo-remi
+      when: ansible_os_family == 'RedHat'
+    - geerlingguy.php-versions
+    - geerlingguy.php
+    - geerlingguy.composer
+    - geerlingguy.mysql
     - { role: geerlingguy.nginx, ssl: false }
     - geerlingguy.certbot
-    - stefanbutura.nginx
+    - eaudeweb.nginx_snippets
+    - { role: geerlingguy.nginx, ssl: true }
   vars:
     nginx_vhost_template: "{{ playbook_dir }}/templates/nginx_vhost.j2"
 
@@ -57,21 +58,29 @@
     mysql_innodb_file_per_table: "1"
     mysql_innodb_log_file_size: "128M"
     mysql_innodb_log_buffer_size: "4M"
-    mysql_innodb_buffer_pool_size: "216M"
+    mysql_innodb_buffer_pool_size: "256M"
     mysql_innodb_lock_wait_timeout: "3600"
 
+    php_realpath_cache_size: "4096k"
+    php_expose_php: "Off"
     php_fpm_pool_user: nginx
     php_fpm_pool_group: nginx
     php_memory_limit: "512M"
     php_max_execution_time: "90"
+    php_max_input_vars: "10000"
     php_upload_max_filesize: "256M"
     php_enable_php_fpm: true
+    php_opcache_enable: true
     php_enable_webserver: false
+    php_error_log: "syslog"
+    php_post_max_size: "256M"
+    php_date_timezone: "UTC"
 
     certbot_admin_email: stefan.butura@eaudeweb.ro
     certbot_create_if_missing: true
     certbot_create_method: webroot
     certbot_webroot: /usr/share/nginx/html/letsencrypt
+    certbot_create_standalone_stop_services: false
 
     php_packages:
       - php-bcmath

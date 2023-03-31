@@ -1,0 +1,41 @@
+# DO NOT EDIT !!! - Ask EDW Drupal team for details how to edit this file
+# This file is generated. Manual changes to this file can be lost
+
+# Allows adding support for https://github.com/eaudeweb/heavy-lifter 
+# database/files retrieval tool
+#
+# HOW TO USE:
+#
+# Example 1: Default dump path and default passwords file
+#            You just need to provide passwords in (see examples in hosts):
+#            /etc/nginx/conf.d/drupal-nginx-config/passwords/heavy-lifter.htpasswd
+#
+#     set $heavy_lifter_root $document_root/sync;
+#     include /etc/nginx/conf.d/drupal-nginx-config/snippets/heavy-lifter-sync;
+#
+# Example 2: Absolute path and custom passwords file (for multiple sites on same host)
+#
+#     set $heavy_lifter_root /var/www/config/example.org/sync;
+#     set $heavy_lifter_password_file /etc/nginx/conf.d/drupal-nginx-config/passwords/heavy-lifter--wildlifeday.edw.ro.htpasswd;
+#     include /etc/nginx/conf.d/drupal-nginx-config/snippets/heavy-lifter-sync;
+
+location /sync {
+    # Configure $heavy_lifter_root in your VH file using an absolute or
+    # relative to site root: set $heavy_lifter_root $document_root/sync;
+    alias $heavy_lifter_root;
+    auth_basic "Protected area";
+
+    uninitialized_variable_warn off;
+
+    if ($heavy_lifter_password_file = '') {
+        set $heavy_lifter_password_file /etc/nginx/conf.d/drupal-nginx-config/passwords/heavy-lifter.htpasswd;
+    }
+    auth_basic_user_file $heavy_lifter_password_file;
+
+    # Enable file serving optimizations
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+
+    try_files $uri =404;
+}
