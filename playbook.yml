@@ -29,7 +29,6 @@
       when: ansible_os_family == 'RedHat'
     - geerlingguy.php-versions
     - geerlingguy.php
-    - geerlingguy.composer
     - geerlingguy.mysql
     - { role: geerlingguy.nginx, ssl: false }
     - geerlingguy.certbot
@@ -105,3 +104,8 @@
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/php_vars.yml"
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/nginx_vars.yml"
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/certbot_vars.yml"
+
+- name: Install composer
+  hosts: "nginx"
+  roles:
+    - geerlingguy.composer
