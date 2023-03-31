@@ -121,3 +121,14 @@
         regexp: '^%wheel'
         line: '%wheel ALL=(ALL) NOPASSWD: ALL'
         validate: 'visudo -cf %s'
+
+- name: Make a certain version of PHP the default one
+  hosts: nginx
+  tasks:
+    - alternatives:
+        name: php
+        link: /usr/bin/php
+        path: "{{ php_executable }}"
+        priority: 10
+  vars_files:
+    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/php_vars.yml"
