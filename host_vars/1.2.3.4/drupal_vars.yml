@@ -1,4 +1,7 @@
 drupal_sites:
   - directory: "mysite.com"
+    url: "https://mysite.com"
     files:
       - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/files/mysite.com/settings.local.php"
+      - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/files/mysite.com/hash-site-default.txt"
+      - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/files/mysite.com/robo.yml"

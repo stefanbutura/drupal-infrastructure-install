@@ -149,3 +149,17 @@
     - eaudeweb.drupal_files
   vars_files:
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/drupal_vars.yml"
+
+- name: Create cron entries for Drupal sites
+  hosts: nginx
+  tasks:
+    - name: "Add cron entry for site"
+      cron:
+        name: drush cron
+        minute: "*/10"
+        user: nginx
+        job: "/var/www/html/{{ item.directory }}/vendor/bin/drush --root=/var/www/html/{{ item.directory }}/web --uri={{ item.url }} cron > /dev/null 2>&1"
+        cron_file: drupal-cron
+      with_items: "{{ drupal_sites }}"
+  vars_files:
+    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/drupal_vars.yml"
