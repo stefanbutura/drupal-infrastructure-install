@@ -1,0 +1,17 @@
+---
+- name: Create directory structure
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    group: "root"
+    owner: "root"
+  with_items:
+    - "/var/www/artifacts"
+    - "/var/www/config"
+
+- include_tasks: site-specific.yml
+  with_items: "{{ drupal_sites }}"
+  loop_control:
+    loop_var: drupal_site
+

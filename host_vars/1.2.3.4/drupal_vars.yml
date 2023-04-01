@@ -1,0 +1,4 @@
+drupal_sites:
+  - directory: "stefanb.ro"
+    files:
+      - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/files/stefanb.ro/settings.local.php"

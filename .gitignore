@@ -4,3 +4,4 @@ host_vars/*
 !host_vars/1.2.3.4
 roles/*
 !roles/eaudeweb.nginx_snippets
+!roles/eaudeweb.drupal_files

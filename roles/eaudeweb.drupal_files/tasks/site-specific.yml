@@ -1,0 +1,33 @@
+---
+- name: Create directory structure
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    group: "web"
+    owner: "web"
+  with_items:
+    - "/var/www/artifacts/{{ drupal_site.directory }}"
+    - "/var/www/config/{{ drupal_site.directory }}"
+    - "/var/www/config/{{ drupal_site.directory }}/sync"
+
+- name: Create files directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: 02775
+    group: "nginx"
+    owner: "nginx"
+  with_items:
+    - "/var/www/config/{{ drupal_site.directory }}/files"
+    - "/var/www/config/{{ drupal_site.directory }}/private"
+
+- name: Copy settings files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/var/www/config/{{ drupal_site.directory }}/{{ item | basename }}"
+    mode: "0664"
+    group: web
+    owner: web
+    force: false
+  with_items: "{{ drupal_site.files }}"

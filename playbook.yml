@@ -106,11 +106,31 @@
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/nginx_vars.yml"
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/certbot_vars.yml"
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/users_vars.yml"
+  post_tasks:
+    - name: Configure PHP CLI
+      community.general.alternatives:
+        name: php
+        path: "{{ php_executable }}"
+        priority: 10
+        link: /usr/bin/php
 
 - name: Install composer
   hosts: "nginx"
   roles:
     - geerlingguy.composer
+
+- name: Create the web user
+  hosts: nginx
+  become: true
+  tasks:
+    - name: "Create user accounts and add users to groups"
+      user:
+        name: "web"
+        groups: "nginx,wheel"
+    - name: "Add authorized keys"
+      authorized_key:
+        user: "web"
+        key: "{{ lookup('file', '{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/web.key.pub') }}"
 
 - name: Make users passwordless for sudo in group wheel
   hosts: nginx
@@ -122,13 +142,10 @@
         line: '%wheel ALL=(ALL) NOPASSWD: ALL'
         validate: 'visudo -cf %s'
 
-- name: Make a certain version of PHP the default one
+- name: Create Drupal files
   hosts: nginx
-  tasks:
-    - alternatives:
-        name: php
-        link: /usr/bin/php
-        path: "{{ php_executable }}"
-        priority: 10
+  become: true
+  roles:
+    - eaudeweb.drupal_files
   vars_files:
-    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/php_vars.yml"
+    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/drupal_vars.yml"
