@@ -15,10 +15,12 @@
 - Installs MySQL and creates databases
 - Installs PHP (PHP-FPM)
 - Creates SSH users based on Github accounts (SSH keys retrieved from https://github.com/USERNAME.keys)
+- Create the "web" user that should be used for Drupal deployments
+- Creates the /var/www/config/domain.com folders, with all the settings files 
+- Creates the /var/www/artifacts folder for Github actions
+- Creates crontab entries that run drush:cron for each site
 
 ## What's left to do after this
 
-- Import your database
-- Clone your repo
-- Configure Drupal settings.local.php
-- Do an usual deployment
+- Import a database dump
+- Do an usual Github Actions deployment
