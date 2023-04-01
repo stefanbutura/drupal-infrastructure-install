@@ -1,4 +1,4 @@
 drupal_sites:
-  - directory: "stefanb.ro"
+  - directory: "mysite.com"
     files:
-      - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/files/stefanb.ro/settings.local.php"
+      - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/files/mysite.com/settings.local.php"
