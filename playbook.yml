@@ -1,8 +1,25 @@
 ---
+#- name: Create the web user
+#  hosts: nginx
+#  become: true
+#  tasks:
+#    - name: "Create nginx group"
+#      group:
+#        name: "nginx"
+#    - name: "Create nginx user"
+#      user:
+#        name: "nginx"
+#        groups: "nginx"
+
 - name: Install dependencies
   hosts: "nginx"
   become: yes
   pre_tasks:
+    - name: Override variables for Nginx/PHP.
+      set_fact:
+        nginx_vhost_path: /etc/nginx/conf.d
+        nginx_user: nginx
+
     - name: Configure MariaDB Repository
       yum_repository:
         name: mariadb
@@ -23,17 +40,30 @@
         mysql_syslog_tag: mariadb
         mysql_pid_file: /var/lib/mysql/mariadb.pid
       when: ansible_os_family == "RedHat"
+
+    - name: Override variables for MySQL (Debian).
+      set_fact:
+        mysql_daemon: mariadb
+        mysql_packages:
+          - mariadb-server
+          - python3-pymysql
+        mysql_syslog_tag: mariadb
+        mysql_pid_file: /var/lib/mysql/mariadb.pid
+        ansible_python_interpreter: /usr/bin/python3
+      when: ansible_os_family == "Debian"
   roles:
     - geerlingguy.git
-    - name: geerlingguy.repo-remi
-      when: ansible_os_family == 'RedHat'
-    - { role: geerlingguy.nginx, ssl: false }
+#    - name: geerlingguy.repo-remi
+#      when: ansible_os_family == 'RedHat'
+#    - { role: geerlingguy.nginx, ssl: false }
+##    If there is a "Failed to download key at https://packages.sury.org/php/apt.gpg: Request failed: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed" error
+##    See https://github.com/oerdnj/deb.sury.org/issues/1729#issuecomment-1157442150
     - geerlingguy.php-versions
     - geerlingguy.php
-    - geerlingguy.mysql
-    - geerlingguy.certbot
-    - eaudeweb.nginx_snippets
-    - { role: geerlingguy.nginx, ssl: true }
+#    - geerlingguy.mysql
+#    - geerlingguy.certbot
+#    - eaudeweb.nginx_snippets
+#    - { role: geerlingguy.nginx, ssl: true }
     - geerlingguy.github-users
   vars:
     nginx_vhost_template: "{{ playbook_dir }}/templates/nginx_vhost.j2"
@@ -63,8 +93,8 @@
 
     php_realpath_cache_size: "4096k"
     php_expose_php: "Off"
-    php_fpm_pool_user: nginx
-    php_fpm_pool_group: nginx
+    php_fpm_pool_user: "nginx"
+    php_fpm_pool_group: "nginx"
     php_memory_limit: "512M"
     php_max_execution_time: "90"
     php_max_input_vars: "10000"
@@ -83,23 +113,29 @@
     certbot_create_standalone_stop_services: false
 
     php_packages:
-      - php-bcmath
-      - php-bz2
-      - php-cli
-      - php-curl
-      - php-common
-      - php-devel
-      - php-fpm
-      - php-gd
-      - php-intl
-      - php-mbstring
-      - php-mcrypt
-      - php-mysqlnd
-      - php-opcache
-      - php-pdo
-      - php-pecl-apcu
-      - php-xml
-      - php-zip
+      - php81-php-cli
+      - php81-php-curl
+      - php81-php-common
+      - php81-php-devel
+      - php81-php-fpm
+      - php81-php-gd
+      - php81-php-intl
+      - php81-php-mbstring
+      - php81-php-mcrypt
+      - php81-php-mysqlnd
+      - php81-php-opcache
+      - php81-php-pdo
+      - php81-php-pear
+      - php81-php-pecl-apcu
+      - php81-php-pecl-igbinary
+      - php81-php-pecl-mcrypt
+      - php81-php-pecl-memcached
+      - php81-php-pecl-uuid
+      - php81-php-pecl-yaml
+      - php81-php-pecl-zip
+      - php81-php-xml
+      - php81-php-zip
+
   vars_files:
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/mysql_vars.yml"
     - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/php_vars.yml"
@@ -113,53 +149,70 @@
         path: "{{ php_executable }}"
         priority: 10
         link: /usr/bin/php
+      when: ansible_os_family == "RedHat"
 
-- name: Install composer
-  hosts: "nginx"
-  roles:
-    - geerlingguy.composer
-
-- name: Create the web user
-  hosts: nginx
-  become: true
-  tasks:
-    - name: "Create user accounts and add users to groups"
-      user:
-        name: "web"
-        groups: "nginx,wheel"
-    - name: "Add authorized keys"
-      authorized_key:
-        user: "web"
-        key: "{{ lookup('file', '{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/web.key.pub') }}"
-
-- name: Make users passwordless for sudo in group wheel
-  hosts: nginx
-  tasks:
-    - lineinfile:
-        path: /etc/sudoers
-        state: present
-        regexp: '^%wheel'
-        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
-        validate: 'visudo -cf %s'
-
-- name: Create Drupal files
-  hosts: nginx
-  become: true
-  roles:
-    - eaudeweb.drupal_files
-  vars_files:
-    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/drupal_vars.yml"
-
-- name: Create cron entries for Drupal sites
-  hosts: nginx
-  tasks:
-    - name: "Add cron entry for site"
-      cron:
-        name: drush cron
-        minute: "*/10"
-        user: nginx
-        job: "/var/www/html/{{ item.directory }}/vendor/bin/drush --root=/var/www/html/{{ item.directory }}/web --uri={{ item.url }} cron > /dev/null 2>&1"
-        cron_file: drupal-cron
-      with_items: "{{ drupal_sites }}"
-  vars_files:
-    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/drupal_vars.yml"
+#- name: Install composer
+#  hosts: "nginx"
+#  roles:
+#    - geerlingguy.composer
+#
+#- name: Create the web user
+#  hosts: nginx
+#  become: true
+#  tasks:
+#    - name: "Create user accounts and add users to groups"
+#      user:
+#        name: "web"
+#        groups: "nginx,wheel"
+#      when: ansible_os_family == "RedHat"
+#    - name: "Create user accounts and add users to groups"
+#      user:
+#        name: "web"
+#        groups: "nginx,sudo"
+#      when: ansible_os_family != "RedHat"
+#    - name: "Add authorized keys"
+#      authorized_key:
+#        user: "web"
+#        key: "{{ lookup('file', '{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/web.key.pub') }}"
+#
+#- name: Make users passwordless for sudo in group wheel/sudo
+#  hosts: nginx
+#  become: true
+#  tasks:
+#    - lineinfile:
+#        path: /etc/sudoers
+#        state: present
+#        regexp: '^%wheel'
+#        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+#        validate: 'visudo -cf %s'
+#      when: ansible_os_family == "RedHat"
+#    - lineinfile:
+#        path: /etc/sudoers
+#        state: present
+#        regexp: '^%sudo'
+#        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+#        validate: 'visudo -cf %s'
+#      when: ansible_os_family != "RedHat"
+#
+#- name: Create Drupal files
+#  hosts: nginx
+#  become: true
+#  roles:
+#    - eaudeweb.drupal_files
+#  vars_files:
+#    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/drupal_vars.yml"
+#
+#- name: Create cron entries for Drupal sites
+#  hosts: nginx
+#  become: true
+#  tasks:
+#    - name: "Add cron entry for site"
+#      cron:
+#        name: drush cron
+#        minute: "*/10"
+#        user: nginx
+#        job: "/var/www/html/{{ item.directory }}/vendor/bin/drush --root=/var/www/html/{{ item.directory }}/web --uri={{ item.url }} cron > /dev/null 2>&1"
+#        cron_file: drupal-cron
+#      with_items: "{{ drupal_sites }}"
+#  vars_files:
+#    - "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/drupal_vars.yml"
